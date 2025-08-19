@@ -1,14 +1,12 @@
 FROM node:18-alpine
 
-# Set working directory
 WORKDIR /app
 
-# Install backend dependencies
+# Install dependencies for both backend and frontend
 COPY backend/package*.json ./backend/
-RUN cd backend && npm install
-
-# Install frontend dependencies and build
 COPY frontend/package*.json ./frontend/
+
+RUN cd backend && npm install
 RUN cd frontend && npm install
 
 # Copy source code
@@ -18,14 +16,11 @@ COPY frontend/ ./frontend/
 # Build frontend
 RUN cd frontend && npm run build
 
-# Create data directory
-RUN mkdir -p /app/data
+# Create data directory structure
+RUN mkdir -p /app/data/media /app/data/items /app/data/relationships/links /app/data/ai
 
 # Expose port
 EXPOSE 3000
 
-# Set environment
-ENV NODE_ENV=production
-
-# Start the application
+# Start the backend server
 CMD ["node", "backend/server.js"]

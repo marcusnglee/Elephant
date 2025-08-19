@@ -47,7 +47,7 @@ elephant/
 │   │   └── links/          # Individual relationship files
 │   └── ai/                 # AI model and embeddings cache
 ├── backend/
-│   ├── server.js           # Main Express server
+│   ├── server.ts           # Main Express server
 │   ├── api/                # API route handlers
 │   ├── services/           # Business logic
 │   ├── ai/                 # AI processing modules
@@ -106,9 +106,9 @@ elephant/
 ## Development Phases
 
 ### Phase 1: Core Infrastructure ✅
-- [x] Docker environment setup
-- [x] Basic project structure
-- [x] Removed unnecessary CORS (same-machine deployment)
+- [ ] Docker environment setup
+- [ ] Basic project structure
+- [ ] Removed unnecessary CORS (same-machine deployment)
 - [ ] Sequential file numbering system
 - [ ] File-based storage utilities
 - [ ] Basic Express server with health checks
@@ -137,7 +137,7 @@ elephant/
 ## Coding Guidelines
 
 ### File Organization
-- Use ES6 modules throughout
+- Use TypeScript with ES6 modules throughout
 - Keep API routes in separate files by feature
 - Use descriptive, consistent naming
 - Comment complex algorithms and AI logic

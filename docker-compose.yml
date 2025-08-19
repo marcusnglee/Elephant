@@ -1,22 +1,46 @@
 version: '3.8'
+
 services:
-  elephant:
+  app:
     build: .
     ports:
       - "3000:3000"
     volumes:
       - ./data:/app/data
-    restart: unless-stopped
+      - ./backend:/app/backend
+      - ./frontend:/app/frontend
     environment:
       - NODE_ENV=development
+      - PORT=3000
       - MAX_FILE_SIZE=100MB
+      - JWT_SECRET=elephant-local-secret-key
       - AI_MODEL_PATH=/app/data/ai/model
-    deploy:
-      resources:
-        limits:
-          memory: 2G
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    depends_on:
+      - data-init
+
+  data-init:
+    image: alpine:latest
+    volumes:
+      - ./data:/data
+    command: >
+      sh -c "
+        mkdir -p /data/media /data/items /data/relationships/links /data/ai &&
+        if [ ! -f /data/metadata.json ]; then
+          echo '{\"version\":\"1.0.0\",\"createdAt\":\"$(date -Iseconds)\"}' > /data/metadata.json
+        fi &&
+        if [ ! -f /data/counter.json ]; then
+          echo '{\"current\":0}' > /data/counter.json
+        fi &&
+        if [ ! -f /data/auth.json ]; then
+          echo '{\"users\":{\"friend1\":{\"id\":\"friend1\",\"name\":\"Friend 1\",\"passwordHash\":\"$2b$10$dummy1\"},\"friend2\":{\"id\":\"friend2\",\"name\":\"Friend 2\",\"passwordHash\":\"$2b$10$dummy2\"}}}' > /data/auth.json
+        fi &&
+        if [ ! -f /data/relationships/graph.json ]; then
+          echo '{\"nodes\":[],\"edges\":[]}' > /data/relationships/graph.json
+        fi &&
+        if [ ! -f /data/relationships/ai_clusters.json ]; then
+          echo '{\"clusters\":[]}' > /data/relationships/ai_clusters.json
+        fi
+      "
+
+volumes:
+  data:
