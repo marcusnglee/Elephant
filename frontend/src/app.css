@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for the Elephant app */
+.upload-zone {
+  transition: all 0.2s ease-in-out;
+}
+
+.upload-zone.dragover {
+  @apply border-blue-400 bg-blue-50;
+}
+
+.upload-zone:hover {
+  @apply border-gray-400;
+}
+
+.file-preview img {
+  @apply object-cover rounded-lg;
+}
+
+.timeline-item {
+  @apply border-l-4 border-gray-200 pl-4 pb-6;
+}
+
+.timeline-item:last-child {
+  @apply pb-0;
+}
