@@ -37,9 +37,6 @@ export async function uploadFiles(filesWithContext) {
       if (fileData.context.description) {
         formData.append(`description_${fileData.file.name}`, fileData.context.description);
       }
-      if (fileData.context.uploadThoughts) {
-        formData.append(`uploadThoughts_${fileData.file.name}`, fileData.context.uploadThoughts);
-      }
       if (fileData.context.tags.length > 0) {
         formData.append(`tags_${fileData.file.name}`, fileData.context.tags.join(','));
       }

@@ -37,29 +37,44 @@
 </svelte:head>
 
 <div class="space-y-8">
-  <div class="text-center">
-    <h2 class="text-3xl font-bold text-gray-900">Share Your Media</h2>
-    <p class="mt-2 text-lg text-gray-600">
-      Upload files and add context to build your knowledge base
+  <!-- Magazine-style hero section -->
+  <header class="container-reading text-center mb-16">
+    <h1 class="text-headline text-black mb-6 text-balance">
+      Preserve the moments<br>that shape your story
+    </h1>
+    <p class="text-body text-gray-600 mb-8 text-balance">
+      Every shared memory becomes part of something larger—a living archive of your friendship, 
+      where context and connection transform simple files into meaningful narratives.
     </p>
-  </div>
+    <div class="flex items-center justify-center gap-6">
+      <a 
+        href="/timeline" 
+        class="text-caption text-gray-500 hover:text-black transition-colors tracking-wide"
+      >
+        Browse Timeline →
+      </a>
+    </div>
+  </header>
 
   {#if uploadStep === 'select'}
     <UploadZone onfilesselected={handleFilesSelected} />
   
   {:else if uploadStep === 'context'}
-    <div class="space-y-6">
-      <div class="flex items-center justify-between">
-        <h3 class="text-xl font-semibold text-gray-900">
-          Add Context to Your Files
-        </h3>
+    <div class="container-narrow space-y-12">
+      <header class="text-center">
+        <h2 class="text-headline text-black mb-4">
+          Give your files meaning
+        </h2>
+        <p class="text-body text-gray-600 mb-8">
+          Context transforms ordinary files into memorable stories
+        </p>
         <button 
           onclick={resetUpload}
-          class="text-sm text-gray-500 hover:text-gray-700"
+          class="text-caption text-gray-400 hover:text-black transition-colors tracking-wide"
         >
-          ← Back to file selection
+          ← Choose different files
         </button>
-      </div>
+      </header>
       
       <ContextCapture 
         files={selectedFiles} 
@@ -69,52 +84,74 @@
     </div>
   
   {:else if uploadStep === 'uploading'}
-    <div class="text-center py-12">
-      <div class="animate-spin h-8 w-8 border-b-2 border-blue-600 rounded-full mx-auto"></div>
-      <p class="mt-4 text-gray-600">Uploading your files...</p>
+    <div class="container-narrow text-center py-16">
+      <div class="w-1 h-1 bg-black rounded-full mx-auto animate-pulse mb-8"></div>
+      <p class="text-body text-gray-600">Uploading your files...</p>
     </div>
   
   {:else if uploadStep === 'complete'}
-    <div class="text-center py-12 space-y-4">
-      <div class="text-green-600">
-        <svg class="h-12 w-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-        </svg>
+    <div class="container-narrow text-center py-16 space-y-8">
+      <div class="w-2 h-2 bg-black rounded-full mx-auto"></div>
+      <div class="space-y-4">
+        <h3 class="text-headline text-black">Files added to your story</h3>
+        <p class="text-body text-gray-600">
+          Your memories are now part of the archive, ready to connect with future moments.
+        </p>
       </div>
-      <h3 class="text-xl font-semibold text-gray-900">Upload Complete!</h3>
-      <p class="text-gray-600">Your files have been added to your knowledge base.</p>
       <button 
         onclick={resetUpload}
-        class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+        class="btn-primary"
       >
-        Upload More Files
+        Add More Memories
       </button>
     </div>
   {/if}
   
-  <!-- Recent uploads preview -->
+  <!-- Recent uploads - magazine style -->
   {#if $uploadedFiles.length > 0 && uploadStep === 'select'}
-    <div class="mt-12 border-t pt-8">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Uploads</h3>
-      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {#each $uploadedFiles.slice(0, 6) as file}
-          <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-            {#if file.mimeType.startsWith('image/')}
-              <img 
-                src="/media/{file.filename}" 
-                alt={file.title || file.originalName}
-                class="w-full h-full object-cover"
-              />
-            {:else}
-              <div class="w-full h-full flex items-center justify-center text-gray-500">
-                <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-              </div>
-            {/if}
-          </div>
+    <section class="mt-20 border-t border-gray-200 pt-16">
+      <header class="container-narrow text-center mb-12">
+        <h3 class="text-headline text-black mb-4">Recent additions</h3>
+        <a 
+          href="/timeline" 
+          class="text-caption text-gray-400 hover:text-black transition-colors tracking-wide"
+        >
+          View complete timeline →
+        </a>
+      </header>
+      
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
+        {#each $uploadedFiles.slice(0, 8) as file}
+          <article class="group cursor-pointer">
+            <div class="aspect-square bg-gray-50 overflow-hidden mb-3 transition-all duration-300 group-hover:shadow-lg">
+              {#if file.mimeType.startsWith('image/')}
+                <img 
+                  src="/media/{file.filename}" 
+                  alt={file.title || file.originalName}
+                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              {:else}
+                <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+                  <div class="text-center">
+                    <div class="w-6 h-6 bg-black/10 rounded mx-auto mb-2"></div>
+                    <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {file.mimeType.split('/')[0]}
+                    </div>
+                  </div>
+                </div>
+              {/if}
+            </div>
+            <div class="space-y-1">
+              <h4 class="text-sm font-medium text-black truncate">
+                {file.title || file.originalName}
+              </h4>
+              <p class="text-xs text-gray-500 tracking-wide">
+                {new Date(file.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              </p>
+            </div>
+          </article>
         {/each}
       </div>
-    </div>
+    </section>
   {/if}
 </div>

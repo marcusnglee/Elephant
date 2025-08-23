@@ -11,7 +11,6 @@ export interface MediaItem {
   uploadedAt: string;
   title?: string;
   description?: string;
-  uploadThoughts?: string;
   tags: string[];
   temporalContext: {
     dayOfWeek: string;
@@ -43,7 +42,6 @@ export class MediaService {
     metadata?: {
       title?: string;
       description?: string;
-      uploadThoughts?: string;
       tags?: string[];
     }
   ): MediaItem {
@@ -62,7 +60,6 @@ export class MediaService {
       uploadedAt: now.toISOString(),
       title: metadata?.title,
       description: metadata?.description,
-      uploadThoughts: metadata?.uploadThoughts,
       tags: metadata?.tags || [],
       temporalContext: {
         dayOfWeek: now.toLocaleDateString('en-US', { weekday: 'long' }),

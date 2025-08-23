@@ -93,20 +93,31 @@ Thumbs.db
 # Docker
 .dockerignore
 
-# Elephant-specific data directories
-# Comment out if you want to track some data files in git
-data/media/
-data/ai/
-data/items/
-data/relationships/links/
+# Elephant-specific: Ignore ALL data and media files for privacy
+# These directories contain user-uploaded content and personal data
 
-# Keep structure files but ignore actual content
+# Main data directory and all subdirectories
+data/
+backend/data/
+frontend/static/media/
+
+# Additional media directories (just in case)
+media/
+uploads/
+**/media/
+**/uploads/
+
+# Database and storage files
+*.json.backup
+*.db
+*.sqlite
+*.sqlite3
+
+# Keep only structure and documentation
 !data/.gitkeep
-!data/media/.gitkeep
-!data/ai/.gitkeep
-!data/items/.gitkeep
-!data/relationships/.gitkeep
-!data/relationships/links/.gitkeep
+!data/README.md
+!backend/data/.gitkeep
+!backend/data/README.md
 
 # Temporary files
 *.tmp

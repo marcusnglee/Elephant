@@ -51,7 +51,6 @@ router.post(
           const metadata = {
             title: req.body[`title_${file.originalname}`],
             description: req.body[`description_${file.originalname}`],
-            uploadThoughts: req.body[`uploadThoughts_${file.originalname}`],
             tags:
               req.body[`tags_${file.originalname}`]
                 ?.split(",")
@@ -123,6 +122,61 @@ router.get("/", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
+// Get timeline view with pagination and filtering
+router.get("/timeline", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const mimeType = req.query.mimeType as string;
+    const uploadedBy = req.query.uploadedBy as string;
+    
+    let items = mediaService.getAllMediaItems();
+    
+    // Apply filters
+    if (mimeType) {
+      items = items.filter(item => item.mimeType.startsWith(mimeType));
+    }
+    
+    if (uploadedBy) {
+      items = items.filter(item => item.uploadedBy === uploadedBy);
+    }
+    
+    // Apply pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedItems = items.slice(startIndex, endIndex);
+    
+    // Group by date for timeline display
+    const groupedByDate = paginatedItems.reduce((groups, item) => {
+      const date = new Date(item.uploadedAt).toDateString();
+      if (!groups[date]) {
+        groups[date] = [];
+      }
+      groups[date].push(item);
+      return groups;
+    }, {} as Record<string, MediaItem[]>);
+    
+    res.json({
+      success: true,
+      items: paginatedItems,
+      groupedByDate,
+      pagination: {
+        page,
+        limit,
+        total: items.length,
+        totalPages: Math.ceil(items.length / limit),
+        hasNext: endIndex < items.length,
+        hasPrev: page > 1
+      }
+    });
+  } catch (error) {
+    console.error("Get timeline error:", error);
+    res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+});
+
 // Get specific media item
 router.get("/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -174,13 +228,12 @@ router.patch("/:id", async (req: AuthenticatedRequest, res: Response) => {
     }
 
     // extract only updatable fields from JSON
-    const { title, description, uploadThoughts, tags } = req.body;
+    const { title, description, tags } = req.body;
 
     // create updates object
     const updates: Partial<MediaItem> = {};
     if (title !== undefined) updates.title = title;
     if (description !== undefined) updates.description = description;
-    if (uploadThoughts !== undefined) updates.uploadThoughts = uploadThoughts;
     if (tags !== undefined)
       updates.tags = Array.isArray(tags)
         ? tags

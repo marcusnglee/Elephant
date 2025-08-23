@@ -16,7 +16,6 @@
         context: {
           title: '',
           description: '',
-          uploadThoughts: '',
           tags: []
         }
       }));
@@ -152,22 +151,8 @@
             <textarea
               id="description"
               bind:value={currentFile.context.description}
-              placeholder="Describe what this file shows or contains"
-              rows="3"
-              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            ></textarea>
-          </div>
-          
-          <!-- Upload thoughts -->
-          <div>
-            <label for="thoughts" class="block text-sm font-medium text-gray-700">
-              Your Thoughts
-            </label>
-            <textarea
-              id="thoughts"
-              bind:value={currentFile.context.uploadThoughts}
-              placeholder="Why is this meaningful to you? What memories or feelings does it evoke?"
-              rows="3"
+              placeholder="Describe what this file shows, what it means to you, and any thoughts or feelings it evokes"
+              rows="4"
               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             ></textarea>
           </div>
@@ -248,19 +233,19 @@
   {/if}
   
   <!-- Action buttons -->
-  <div class="flex justify-between pt-6 border-t">
+  <div class="flex justify-between items-center pt-8 border-t border-gray-200">
     <button
       onclick={handleBack}
-      class="px-6 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+      class="btn-secondary"
     >
-      Back to Files
+      Choose Different Files
     </button>
     
     <button
       onclick={handleSubmit}
-      class="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+      class="btn-primary"
     >
-      Upload Files
+      Add to Timeline
     </button>
   </div>
 </div>
