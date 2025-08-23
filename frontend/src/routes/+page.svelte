@@ -1,10 +1,20 @@
 <script>
+  import { onMount } from 'svelte';
   import UploadZone from '../components/UploadZone.svelte';
   import ContextCapture from '../components/ContextCapture.svelte';
-  import { uploadedFiles, uploadFiles } from '../stores/media.js';
+  import { uploadedFiles, uploadFiles, fetchMediaItems } from '../stores/media.js';
   
   let selectedFiles = $state([]);
   let uploadStep = $state('select'); // 'select' | 'context' | 'uploading' | 'complete'
+  
+  // Load existing media items when the page loads
+  onMount(async () => {
+    try {
+      await fetchMediaItems();
+    } catch (error) {
+      console.error('Failed to load existing media items:', error);
+    }
+  });
   
   function handleFilesSelected(event) {
     selectedFiles = event.files;

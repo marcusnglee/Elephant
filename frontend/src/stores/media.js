@@ -11,8 +11,8 @@ export const uploadProgress = writable({
   currentFile: null
 });
 
-// API base URL
-const API_BASE = 'http://localhost:3000/api';
+// API base URL - use relative URL for Vite proxy
+const API_BASE = '/api';
 
 // Upload files to the server
 export async function uploadFiles(filesWithContext) {
