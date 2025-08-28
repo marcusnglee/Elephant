@@ -1,12 +1,11 @@
-import { readFileSync, writeFileSync, existsSync } from 'fs';
-import { join } from 'path';
+import { FileStorage } from '../utils/fileStorage.js';
 
 interface CounterData {
   current: number;
 }
 
-const COUNTER_FILE = join(process.cwd(), 'data', 'counter.json');
-
+// TODO: For high-traffic applications, consider caching the file path to improve performance.
+// Current implementation resolves path fresh each time to support hot-reload during development.
 export class CounterService {
   private static instance: CounterService;
   private counterData!: CounterData;
@@ -24,9 +23,12 @@ export class CounterService {
 
   private loadCounter(): void {
     try {
-      if (existsSync(COUNTER_FILE)) {
-        const data = readFileSync(COUNTER_FILE, 'utf-8');
-        this.counterData = JSON.parse(data);
+      // Resolve path fresh each time (hot-reload friendly)
+      const counterPath = FileStorage.getDataPath('counter.json');
+      const data = FileStorage.readJSON<CounterData>(counterPath);
+      
+      if (data) {
+        this.counterData = data;
       } else {
         this.counterData = { current: 0 };
         this.saveCounter();
@@ -39,7 +41,12 @@ export class CounterService {
 
   private saveCounter(): void {
     try {
-      writeFileSync(COUNTER_FILE, JSON.stringify(this.counterData, null, 2));
+      // Resolve path fresh each time (hot-reload friendly)
+      const counterPath = FileStorage.getDataPath('counter.json');
+      const success = FileStorage.writeJSON(counterPath, this.counterData);
+      if (!success) {
+        throw new Error('Failed to save counter');
+      }
     } catch (error) {
       console.error('Error saving counter:', error);
       throw new Error('Failed to save counter');
@@ -60,4 +67,5 @@ export class CounterService {
     this.counterData.current = 0;
     this.saveCounter();
   }
+
 }

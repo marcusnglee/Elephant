@@ -1,167 +1,120 @@
 <script>
   import { onMount } from 'svelte';
-  import UploadZone from '../components/UploadZone.svelte';
-  import ContextCapture from '../components/ContextCapture.svelte';
-  import { uploadedFiles, uploadFiles, fetchMediaItems } from '../stores/media.js';
-  
-  let selectedFiles = $state([]);
-  let uploadStep = $state('select'); // 'select' | 'context' | 'uploading' | 'complete'
-  
-  // Load existing media items when the page loads
-  onMount(async () => {
+  import TimelineItem from '../components/TimelineItem.svelte';
+
+  let timelineData = $state(null);
+  let loading = $state(true);
+  let currentPage = $state(1);
+
+  async function loadTimeline() {
+    loading = true;
     try {
-      await fetchMediaItems();
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: '20'
+      });
+      
+      const response = await fetch(`/api/media/timeline?${params}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        timelineData = data;
+      } else {
+        console.error('Failed to load timeline:', data.error);
+      }
     } catch (error) {
-      console.error('Failed to load existing media items:', error);
+      console.error('Error loading timeline:', error);
+    } finally {
+      loading = false;
     }
+  }
+
+  function handlePageChange(newPage) {
+    currentPage = newPage;
+    loadTimeline();
+  }
+
+  onMount(() => {
+    loadTimeline();
   });
-  
-  function handleFilesSelected(event) {
-    selectedFiles = event.files;
-    uploadStep = 'context';
-  }
-  
-  async function handleContextComplete(event) {
-    // Files with context are in event.filesWithContext
-    uploadStep = 'uploading';
-    
-    try {
-      const result = await uploadFiles(event.filesWithContext);
-      console.log('Upload successful:', result);
-      uploadStep = 'complete';
-    } catch (error) {
-      console.error('Upload failed:', error);
-      alert('Upload failed: ' + error.message);
-      uploadStep = 'context'; // Go back to context step to retry
-    }
-  }
-  
-  function resetUpload() {
-    selectedFiles = [];
-    uploadStep = 'select';
-  }
 </script>
 
 <svelte:head>
-  <title>Upload - Elephant Knowledge Base</title>
+  <title>Elephant</title>
 </svelte:head>
 
-<div class="space-y-8">
-  <!-- Magazine-style hero section -->
-  <header class="container-reading text-center mb-16">
-    <h1 class="text-headline text-black mb-6 text-balance">
-      Preserve the moments<br>that shape your story
-    </h1>
-    <p class="text-body text-gray-600 mb-8 text-balance">
-      Every shared memory becomes part of something larger—a living archive of your friendship, 
-      where context and connection transform simple files into meaningful narratives.
-    </p>
-    <div class="flex items-center justify-center gap-6">
-      <a 
-        href="/timeline" 
-        class="text-caption text-gray-500 hover:text-black transition-colors tracking-wide"
-      >
-        Browse Timeline →
-      </a>
-    </div>
-  </header>
+<div class="max-w-4xl mx-auto space-y-6">
 
-  {#if uploadStep === 'select'}
-    <UploadZone onfilesselected={handleFilesSelected} />
-  
-  {:else if uploadStep === 'context'}
-    <div class="container-narrow space-y-12">
-      <header class="text-center">
-        <h2 class="text-headline text-black mb-4">
-          Give your files meaning
-        </h2>
-        <p class="text-body text-gray-600 mb-8">
-          Context transforms ordinary files into memorable stories
-        </p>
-        <button 
-          onclick={resetUpload}
-          class="text-caption text-gray-400 hover:text-black transition-colors tracking-wide"
-        >
-          ← Choose different files
-        </button>
-      </header>
-      
-      <ContextCapture 
-        files={selectedFiles} 
-        oncontextcomplete={handleContextComplete}
-        onback={resetUpload}
-      />
+  <!-- Minimal loading state -->
+  {#if loading}
+    <div class="text-center py-16">
+      <div class="w-1 h-1 bg-black rounded-full mx-auto animate-pulse"></div>
     </div>
-  
-  {:else if uploadStep === 'uploading'}
-    <div class="container-narrow text-center py-16">
-      <div class="w-1 h-1 bg-black rounded-full mx-auto animate-pulse mb-8"></div>
-      <p class="text-body text-gray-600">Uploading your files...</p>
-    </div>
-  
-  {:else if uploadStep === 'complete'}
-    <div class="container-narrow text-center py-16 space-y-8">
-      <div class="w-2 h-2 bg-black rounded-full mx-auto"></div>
-      <div class="space-y-4">
-        <h3 class="text-headline text-black">Files added to your story</h3>
-        <p class="text-body text-gray-600">
-          Your memories are now part of the archive, ready to connect with future moments.
-        </p>
+  {:else if timelineData}
+    <!-- Empty state -->
+    {#if timelineData.items.length === 0}
+      <div class="container-reading text-center py-20">
+        <div class="w-2 h-2 bg-gray-200 rounded-full mx-auto mb-8"></div>
+        <h3 class="text-headline text-black mb-4">Empty</h3>
+        <a href="/upload" class="btn-primary">Upload</a>
       </div>
-      <button 
-        onclick={resetUpload}
-        class="btn-primary"
-      >
-        Add More Memories
-      </button>
-    </div>
-  {/if}
-  
-  <!-- Recent uploads - magazine style -->
-  {#if $uploadedFiles.length > 0 && uploadStep === 'select'}
-    <section class="mt-20 border-t border-gray-200 pt-16">
-      <header class="container-narrow text-center mb-12">
-        <h3 class="text-headline text-black mb-4">Recent additions</h3>
-        <a 
-          href="/timeline" 
-          class="text-caption text-gray-400 hover:text-black transition-colors tracking-wide"
-        >
-          View complete timeline →
-        </a>
-      </header>
-      
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
-        {#each $uploadedFiles.slice(0, 8) as file}
-          <article class="group cursor-pointer">
-            <div class="aspect-square bg-gray-50 overflow-hidden mb-3 transition-all duration-300 group-hover:shadow-lg">
-              {#if file.mimeType.startsWith('image/')}
-                <img 
-                  src="/media/{file.filename}" 
-                  alt={file.title || file.originalName}
-                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-              {:else}
-                <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
-                  <div class="text-center">
-                    <div class="w-6 h-6 bg-black/10 rounded mx-auto mb-2"></div>
-                    <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {file.mimeType.split('/')[0]}
-                    </div>
-                  </div>
-                </div>
-              {/if}
+    {:else}
+      <!-- Magazine-style timeline -->
+      <div class="space-y-24">
+        {#each Object.entries(timelineData.groupedByDate) as [date, items]}
+          <section class="relative">
+            
+            
+            <!-- Timeline items -->
+            <div class="space-y-0">
+              {#each items as item, index}
+                <TimelineItem {item} isLast={index === items.length - 1} />
+                {#if index !== items.length - 1}
+                  <div class="border-b border-gray-100"></div>
+                {/if}
+              {/each}
             </div>
-            <div class="space-y-1">
-              <h4 class="text-sm font-medium text-black truncate">
-                {file.title || file.originalName}
-              </h4>
-              <p class="text-xs text-gray-500 tracking-wide">
-                {new Date(file.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-              </p>
-            </div>
-          </article>
+          </section>
         {/each}
       </div>
-    </section>
+
+      <!-- Minimal pagination -->
+      {#if timelineData.pagination.totalPages > 1}
+        <nav class="container-narrow text-center py-16">
+          <div class="flex justify-center items-center space-x-8">
+            <button 
+              onclick={() => handlePageChange(currentPage - 1)}
+              disabled={!timelineData.pagination.hasPrev}
+              class="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            
+            <span class="text-caption text-gray-500 tracking-wide">
+              {timelineData.pagination.page} of {timelineData.pagination.totalPages}
+            </span>
+            
+            <button 
+              onclick={() => handlePageChange(currentPage + 1)}
+              disabled={!timelineData.pagination.hasNext}
+              class="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+        </nav>
+      {/if}
+    {/if}
+  {:else}
+    <div class="container-reading text-center py-20">
+      <div class="w-2 h-2 bg-red-300 rounded-full mx-auto mb-8"></div>
+      <h3 class="text-headline text-black mb-4">Error</h3>
+      <button 
+        onclick={loadTimeline}
+        class="btn-primary"
+      >
+        Retry
+      </button>
+    </div>
   {/if}
 </div>

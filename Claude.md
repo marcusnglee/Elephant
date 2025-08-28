@@ -239,6 +239,10 @@ Focus on Phase 2: Media Management
 - **Mini computer constraints** - optimize for ARM/low-power systems
 - **Sequential numbering** - this is core to the entire system design
 
+## Performance Optimization TODOs
+
+- **CounterService Path Caching**: Current implementation resolves file paths fresh on each call for hot-reload compatibility during development. For high-traffic production use, consider caching the resolved paths in the singleton constructor to improve performance.
+
 ## Questions to Ask
 
 Before implementing major features, consider:

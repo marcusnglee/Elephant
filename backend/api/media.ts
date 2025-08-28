@@ -6,9 +6,11 @@ import { copyFileSync, unlinkSync } from "fs";
 import { MediaItem, MediaService } from "../services/mediaService.js";
 import { FileStorage } from "../utils/fileStorage.js";
 import { authenticateToken } from "../utils/authMiddleware.js";
+import { RelationshipService } from "../services/relationshipService.js";
 
 const router = Router();
 const mediaService = MediaService.getInstance();
+const relationshipService = RelationshipService.getInstance();
 
 // Configure multer for file uploads
 const upload = multer({
@@ -251,6 +253,41 @@ router.patch("/:id", async (req: AuthenticatedRequest, res: Response) => {
     res.json({ success: true, item: updatedItem });
   } catch (error) {
     console.error("Update media item error:", error);
+    res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+});
+
+// Get all relationships for a specific media item
+router.get("/:id/relationships", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const id = parseInt(req.params.id);
+
+    if (isNaN(id)) {
+      return res.status(400).json({
+        error: "Invalid media ID",
+      });
+    }
+
+    // Check if media item exists
+    const item = mediaService.getMediaItem(id);
+    if (!item) {
+      return res.status(404).json({
+        error: "Media item not found",
+      });
+    }
+
+    const relationships = relationshipService.getRelationshipsForItem(id);
+
+    res.json({
+      success: true,
+      mediaItem: item,
+      relationships,
+      count: relationships.length,
+    });
+  } catch (error) {
+    console.error("Get media relationships error:", error);
     res.status(500).json({
       error: "Internal server error",
     });

@@ -6,6 +6,7 @@ import { join } from "path";
 import { existsSync, mkdirSync } from "fs";
 import authRoutes from "./api/auth.js";
 import mediaRoutes from "./api/media.js";
+import relationshipRoutes from "./api/relationships.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -77,14 +78,16 @@ app.get("/api/status", (req, res) => {
       "POST /api/auth/login",
       "GET /api/media",
       "POST /api/media/upload",
+      "GET /api/relationships",
+      "POST /api/relationships",
     ],
   });
 });
 
 // API routes
 app.use("/api/auth", authRoutes);
-
 app.use("/api/media", mediaRoutes);
+app.use("/api/relationships", relationshipRoutes);
 
 // Serve static files from data/media directory
 app.use("/media", express.static(join(dataDir, "media")));

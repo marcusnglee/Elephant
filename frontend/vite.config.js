@@ -14,7 +14,9 @@ export default defineConfig(({ mode }) => {
 					target: API_URL,
 					changeOrigin: true
 				},
-				'/media': {
+				// Proxy static media files (with extensions) to backend
+				// This regex matches /media/filename.ext but not /media/123 (SvelteKit routes)
+				'^/media/.*\\..+$': {
 					target: API_URL,
 					changeOrigin: true
 				}

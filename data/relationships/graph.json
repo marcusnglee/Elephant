@@ -1,4 +1,32 @@
 {
-  "nodes": [],
-  "edges": []
+  "nodes": [
+    {
+      "id": 1
+    },
+    {
+      "id": 2
+    },
+    {
+      "id": 3
+    },
+    {
+      "id": 4
+    }
+  ],
+  "edges": [
+    {
+      "source": 1,
+      "target": 2,
+      "relationshipType": "reminds me of",
+      "strength": 0.8,
+      "bidirectional": true
+    },
+    {
+      "source": 3,
+      "target": 4,
+      "relationshipType": "follows from",
+      "strength": 0.7,
+      "bidirectional": true
+    }
+  ]
 }
